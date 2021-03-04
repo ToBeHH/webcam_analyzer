@@ -23,7 +23,6 @@ RUN apt-get update \
 
 RUN pip3 install numpy
 
-WORKDIR /
 ENV OPENCV_VERSION="4.5.0"
 RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && unzip ${OPENCV_VERSION}.zip \
