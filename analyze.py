@@ -18,6 +18,9 @@ folder = '/data'
 os.mkdir("/data/check")
 first = True
 count = 0
+minsquare = 10
+if "minsquare" in cfg:
+	minsquare = int(cfg["minsquare"])
 
 imagesize = (0, 0)
 
@@ -72,6 +75,17 @@ for filename in files:
 				pt2 = (int(pt2s[0]),int(pt2s[1]))
 				cv2.rectangle(grey_image, pt1, pt2, (0, 0, 0), -1)
 
+		# eliminate small changes
+		temp = cv2.dilate(grey_image, None, 18)
+		temp = cv2.erode(temp, None, 10)
+		contours, hirarchy = cv2.findContours(temp, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+		for contour in contours:
+			bound_rect = cv2.boundingRect(contour)
+			if bound_rect[2] < minsquare and bound_rect[3] < minsquare:
+				pt1 = (bound_rect[0], bound_rect[1])
+				pt2 = (bound_rect[0] + bound_rect[2], bound_rect[1] + bound_rect[3])
+				cv2.rectangle(grey_image, pt1, pt2, (0, 0, 0), -1)
+
 		# cv2.imshow('img',grey_image)
 
 		dif = cv2.countNonZero(grey_image)
@@ -86,26 +100,12 @@ for filename in files:
 				grey_image = cv2.erode(grey_image, None, 10)
 
 				contours, hirarchy = cv2.findContours(grey_image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-				points = []
 
 				for contour in contours:
 					bound_rect = cv2.boundingRect(contour)
 
 					pt1 = (bound_rect[0], bound_rect[1])
 					pt2 = (bound_rect[0] + bound_rect[2], bound_rect[1] + bound_rect[3])
-					points.append(pt1)
-					points.append(pt2)
 					cv2.rectangle(color_image, pt1, pt2, (0, 0, 255), 1)
 
-				# too many diverse changes, a circle does not work here
-				#if len(points):
-				#	center_point = reduce(lambda a, b: ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), points)
-				#	center_point = (int(center_point[0]), int(center_point[1]))
-				#	cv2.circle(color_image, center_point, 40, (255, 255, 255), 1)
-				#	cv2.circle(color_image, center_point, 30, (0, 100, 255), 1)
-				#	cv2.circle(color_image, center_point, 20, (255, 255, 255), 1)
-				#	cv2.circle(color_image, center_point, 10, (0, 100, 255), 1)
 				cv2.imwrite(os.path.join(folder,"check", filename), color_image)
-
-		#if count>10:
-		#	break
