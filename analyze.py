@@ -2,12 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import cv2
-import os.path
 import numpy as np
 import os
 import yaml
-
-# from functools import reduce
 
 # read config file
 cfg = []
@@ -19,13 +16,21 @@ folder = '/data'
 os.mkdir("/data/check")
 first = True
 count = 0
+
 minsquare = 10
 if "minsquare" in cfg:
     minsquare = int(cfg["minsquare"])
 
+alert_threshold = 1000
+if "alert_threshold" in cfg:
+    alert_threshold = int(cfg["alert_threshold"])
+
+new_image_threshold = 100000
+if "new_image_threshold" in cfg:
+    new_image_threshold = int(cfg["new_image_threshold"])
+
 imagesize = (0, 0)
 
-# see http://stackoverflow.com/questions/3374828/how-do-i-track-motion-using-opencv-in-python
 files = os.listdir(folder)
 files.sort()
 
@@ -86,11 +91,9 @@ for filename in files:
                 pt2 = (bound_rect[0] + bound_rect[2], bound_rect[1] + bound_rect[3])
                 cv2.rectangle(grey_image, pt1, pt2, (0, 0, 0), -1)
 
-        # cv2.imshow('img',grey_image)
-
         dif = cv2.countNonZero(grey_image)
-        if dif > 1000:
-            if dif > 100000:
+        if dif > alert_threshold:
+            if dif > new_image_threshold:
                 first = True
                 print("  %d - restarting" % dif)
             else:
