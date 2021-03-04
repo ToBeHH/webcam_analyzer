@@ -5,9 +5,16 @@ import cv2
 import os.path
 import numpy as np
 import os
+import yaml
 # from functools import reduce
 
-folder='/data'
+# read config file
+cfg = []
+if os.path.isfile("config.yml"):
+	with open("config.yml", "r") as ymlfile:
+		cfg = yaml.safe_load(ymlfile)
+
+folder = '/data'
 os.mkdir("/data/check")
 first = True
 count = 0
@@ -23,6 +30,7 @@ for filename in files:
 	if filename.endswith(".jpg"):
 		color_image = cv2.imread(os.path.join(folder,filename), cv2.IMREAD_COLOR)
 		print("Reading file %s - (%d/%d - depth %d)" % (filename,color_image.shape[1],color_image.shape[0],color_image.shape[2]))
+
 		# Smooth to get rid of false positives
 		color_image = cv2.GaussianBlur(color_image, (3,3), 0)
 
@@ -54,6 +62,15 @@ for filename in files:
 
 		# Convert the image to black and white.
 		grey_image = cv2.threshold(grey_image, 70, 255, cv2.THRESH_BINARY)[1]
+
+		if "ignore" in cfg:
+			for i in cfg["ignore"]:
+				pts = i.split("-")
+				pt1s = pts[0].split("x")
+				pt1 = (int(pt1s[0]),int(pt1s[1]))
+				pt2s = pts[1].split("x")
+				pt2 = (int(pt2s[0]),int(pt2s[1]))
+				cv2.rectangle(grey_image, pt1, pt2, (0, 0, 0), -1)
 
 		# cv2.imshow('img',grey_image)
 
