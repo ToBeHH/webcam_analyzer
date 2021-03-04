@@ -1,0 +1,6 @@
+ignore:
+  - 0x0-1280x200
+  - 0x950-1280x960
+minsquare: 20
+alert_threshold: 1000
+new_image_threshold: 100000
