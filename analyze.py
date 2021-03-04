@@ -4,9 +4,11 @@
 import cv2
 import os.path
 import numpy as np
+import os
 # from functools import reduce
 
-folder='/tmp/alarm/2021-03-02'
+folder='/data'
+os.mkdir("/data/check")
 first = True
 count = 0
 
