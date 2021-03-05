@@ -31,8 +31,18 @@ if "new_image_threshold" in cfg:
 
 imagesize = (0, 0)
 
+# detector for faces
+face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
 files = os.listdir(folder)
 files.sort()
+
+
+def mark_found_rect(image, rect, color):
+    pt1 = (rect[0], rect[1])
+    pt2 = (rect[0] + rect[2], rect[1] + rect[3])
+    cv2.rectangle(image, pt1, pt2, color, 1)
+
 
 for filename in files:
     count = count + 1
@@ -83,7 +93,7 @@ for filename in files:
         # eliminate small changes
         temp = cv2.dilate(grey_image, None, 18)
         temp = cv2.erode(temp, None, 10)
-        contours, hirarchy = cv2.findContours(temp, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(temp, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
         for contour in contours:
             bound_rect = cv2.boundingRect(contour)
             if bound_rect[2] < minsquare and bound_rect[3] < minsquare:
@@ -91,7 +101,18 @@ for filename in files:
                 pt2 = (bound_rect[0] + bound_rect[2], bound_rect[1] + bound_rect[3])
                 cv2.rectangle(grey_image, pt1, pt2, (0, 0, 0), -1)
 
+        something_found = False
+
         dif = cv2.countNonZero(grey_image)
+
+        faces = face_cascade.detectMultiScale(grey_image, 1.3, 5)
+        if len(faces) > 0:
+            print("  found %d faces" % len(faces))
+            filename = "face-" + filename
+        for frame in faces:
+            mark_found_rect(color_image, frame, (180, 105, 255))
+            something_found = True
+
         if dif > alert_threshold:
             if dif > new_image_threshold:
                 first = True
@@ -106,9 +127,8 @@ for filename in files:
 
                 for contour in contours:
                     bound_rect = cv2.boundingRect(contour)
+                    mark_found_rect(color_image, bound_rect, (0, 0, 255))
+                    something_found = True
 
-                    pt1 = (bound_rect[0], bound_rect[1])
-                    pt2 = (bound_rect[0] + bound_rect[2], bound_rect[1] + bound_rect[3])
-                    cv2.rectangle(color_image, pt1, pt2, (0, 0, 255), 1)
-
-                cv2.imwrite(os.path.join(folder, "check", filename), color_image)
+        if something_found:
+            cv2.imwrite(os.path.join(folder, "check", filename), color_image)
