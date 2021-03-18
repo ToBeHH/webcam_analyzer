@@ -21,7 +21,7 @@ RUN apt-get update \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install numpy
+RUN pip3 install --no-cache-dir numpy
 
 ENV OPENCV_VERSION="4.5.0"
 RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
@@ -53,7 +53,7 @@ RUN ln -s \
   /usr/local/lib/python3.9/site-packages/cv2.so
 
 COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY . .
 
