@@ -58,10 +58,10 @@ The config file is optional.
 ## How to run?
 Without a configuration file:
 ```bash
-docker run -v [local path to images]:/data ghcr.io/ToBeHH/webcam_analyze
+docker run -v [local path to images]:/data ghcr.io/tobehh/webcam_analyze
 ```
 
 With a configuration file:
 ```bash
-docker run -v [local path to images]:/data -v [path to local config file]:/app/config.yml ghcr.io/ToBeHH/webcam_analyze
+docker run -v [local path to images]:/data -v [path to local config file]:/app/config.yml ghcr.io/tobehh/webcam_analyze
 ```

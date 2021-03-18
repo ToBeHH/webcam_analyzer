@@ -51,6 +51,7 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 RUN ln -s \
   /usr/local/python/cv2/python-3.9/cv2.cpython-37m-x86_64-linux-gnu.so \
   /usr/local/lib/python3.9/site-packages/cv2.so
+RUN ln -s /usr/local/share/opencv4/haarcascades/haarcascade_frontalface_default.xml /app/haarcascade_frontalface_default.xml
 
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
