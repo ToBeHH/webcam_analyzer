@@ -1,8 +1,9 @@
 FROM python:3.9
 
-WORKDIR /app
-
+# Installing security updates
+# see https://pythonspeed.com/articles/security-updates-in-docker/
 RUN apt-get update \
+    && apt-get -y upgrade \
     && apt-get install -y \
         build-essential \
         cmake \
@@ -21,8 +22,15 @@ RUN apt-get update \
         libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Switch to non-root user:
+RUN useradd --create-home appuser
+
+WORKDIR /app
+USER appuser
+
 RUN pip3 install --no-cache-dir numpy
 
+USER root
 ENV OPENCV_VERSION="4.5.0"
 RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && unzip ${OPENCV_VERSION}.zip \
@@ -53,6 +61,7 @@ RUN ln -s \
   /usr/local/lib/python3.9/site-packages/cv2.so
 RUN ln -s /usr/local/share/opencv4/haarcascades/haarcascade_frontalface_default.xml /app/haarcascade_frontalface_default.xml
 
+USER appuser
 COPY requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
